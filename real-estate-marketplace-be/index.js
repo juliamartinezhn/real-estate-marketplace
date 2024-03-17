@@ -6,6 +6,8 @@ import userRouter from './routes/user.route.js';
 import authRouter from './routes/auth.route.js';
 import cookieParser from 'cookie-parser';
 
+
+import path from 'path';
 dotenv.config();
 mongoose.connect(process.env.MONGO)
     .then(() => {
@@ -15,6 +17,9 @@ mongoose.connect(process.env.MONGO)
     });
 
 const app = express();
+
+const __dirname = path.resolve();
+
 app.use(express.json());
 app.use(cookieParser());
 
@@ -24,6 +29,11 @@ app.listen(3000, () => {
 
 app.use("/api/user", userRouter);
 app.use("/api/auth", authRouter);
+
+app.use(express.static(path.join(__dirname, '/real-estate-marketplace-fe/dist')));
+app.get('*',(req, res)=>{
+    res.sendFile(path.join(__dirname, 'real-estate-marketplace-fe','dist','index.html'));
+})
 
 app.use((error, req, res, next) =>{
     const statusCode = error.statusCode || 500;
