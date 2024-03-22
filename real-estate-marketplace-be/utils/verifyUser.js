@@ -7,10 +7,10 @@ export const verifyToken = (req, res, next) => {
     if(!token) return next(errorHandler(401, 'Unauthorized'));
 
     jwt.verify(token, process.env.JWT_SECRET, (error, user)=>{
-        if(error) return next(errorHandler(403, 'Token is not valida'));
+        if(error) return next(errorHandler(403, 'Token is not valid'));
 
         req.user = user;
-        next(); //goes to updateUser
+        next(); //goes to the function that follows it
     });
 
 }

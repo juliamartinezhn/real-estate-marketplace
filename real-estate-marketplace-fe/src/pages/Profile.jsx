@@ -1,9 +1,9 @@
 import { app } from '../firebase';
-import { useSelector } from 'react-redux';
+import { useSelector,useDispatch } from 'react-redux';
 import { useRef, useState, useEffect } from 'react';
 import { getDownloadURL, getStorage, ref, uploadBytesResumable } from 'firebase/storage';
-import { updateUserStart, updateUserSuccess, updateUserFailure } from '../redux/user/userSlice';
-import { useDispatch } from 'react-redux';
+import { updateUserStart, updateUserSuccess, updateUserFailure, deleteUserFailure, deleteUserStart, deleteUserSuccess } from '../redux/user/userSlice';
+
 export default function Profile() {
   const { currentUser, loading, error } = useSelector((state) => state.user);
   const fileRef = useRef(null);
@@ -13,9 +13,11 @@ export default function Profile() {
   const [formData, setFormData] = useState({});
   const [updateSuccess, setUpdateSuccess] = useState(false);
   const dispatch = useDispatch();
+
   useEffect(() => {
     if (file) {
-      console.log("subida de imagen");
+      
+      setFileError(false);
       const storage = getStorage(app);
       const fileName = new Date().getTime() + file.name;
       const storageRef = ref(storage, fileName);
@@ -64,11 +66,32 @@ export default function Profile() {
         return;
       }
 
-      dispatch(updateUserSuccess(data));
+      dispatch(updateUserSuccess(data.user));
       setUpdateSuccess(true);
 
     } catch (error) {
       dispatch(updateUserFailure(error.message))
+    }
+  }
+
+  const handleDeleteUser = async()=>{
+    try {
+      dispatch(deleteUserStart());
+
+      const res = await fetch(`/api/user/delete/${currentUser._id}`, 
+        {
+          method: 'DELETE'
+        }
+      );
+      const data = await res.json();
+
+      if (data.success===false) {
+        dispatch(deleteUserFailure(data.message))
+        return;
+      }
+      dispatch(deleteUserSuccess());
+    } catch (error) {
+      dispatch(deleteUserFailure(error.message))
     }
   }
   return (
@@ -101,7 +124,7 @@ export default function Profile() {
         </button>
       </form>
       <div className='flex justify-between mt-5'>
-        <span className='text-red-700 cursor-pointer'>Delete account</span>
+        <span onClick={handleDeleteUser} className='text-red-700 cursor-pointer'>Delete account</span>
         <span className='text-red-700 cursor-pointer'>Sign out</span>
       </div>
 
