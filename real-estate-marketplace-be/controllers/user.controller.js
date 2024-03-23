@@ -46,7 +46,7 @@ export const deleteUser = async (req, res, next) =>{
             message: "User has been deleted successfully!"
         });
     } catch (error) {
-        next(error)
+        next(error);
     }
     
 }
