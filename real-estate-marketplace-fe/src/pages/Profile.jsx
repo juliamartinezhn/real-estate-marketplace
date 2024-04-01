@@ -41,7 +41,7 @@ export default function Profile() {
       );
     }
 
-  }, [file])
+  }, [formData, file])
 
 
   const handleChange = (e) => setFormData({ ...formData, [e.target.id]: e.target.value })
